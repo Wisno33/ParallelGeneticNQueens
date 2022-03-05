@@ -139,7 +139,6 @@ def n_queens(n, is_solved, solution, original_pop_size=4):
         # Check if a member of the population is a valid solution.
         for p in population:
             if pairs_attacked_check(p, n) == 0:
-                print(p)
                 for i,c in enumerate(p):
                     solution[i] = char_encodeing[c] # Set the valid solution.
                 is_solved.value = 1

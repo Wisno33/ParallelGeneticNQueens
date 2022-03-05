@@ -1,10 +1,10 @@
 import argparse
 import os
+import sys
 from multiprocessing import Process, Value, Array
 import time
 
 from n_queens import n_queens
-
 
 def main():
 
@@ -27,8 +27,9 @@ def main():
     args = parser.parse_args()
 
     if args.gui:
-        pass
-        # add qt gui here.
+        from gui import GUI
+        window = GUI()
+        window.main_loop()
     else:
 
         # Validate the number of subprocesses, if -1 set to total #processors.
@@ -87,7 +88,7 @@ def main():
 
         for row in board:
             for cell in row:
-                print(cell, end='')
+                print(cell, end=' ')
             print()
 
 
