@@ -13,7 +13,7 @@ If the '--gui' flag is selected the user will be shown a menu window from where 
 
 
 # Requirements
--- Python 3.10.1
--- pygame 2.2.1
--- pygame-menu 4.0.2
--- Pillow 9.0.0
+-- Python 3.10.1 <br />
+-- pygame 2.2.1 <br />
+-- pygame-menu 4.0.2 <br />
+-- Pillow 9.0.0 <br />
