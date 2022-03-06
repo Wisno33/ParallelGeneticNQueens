@@ -18,6 +18,11 @@ def main():
                         'to run, limited to number logical processors ' +
                         'on system. Use -1 to use all processors.')
 
+    # Optional argument specifies if generaton info should be logged.
+    parser.add_argument('--log', metavar='', action=argparse.BooleanOptionalAction,
+                        required=False, help='Logs generational information to the ' +
+                        'console such as generation number and fitness.')
+
     # Optional argument specifies if the GUI version should be used.
     parser.add_argument('--gui', metavar='', action=argparse.BooleanOptionalAction,
                         required=False, help='Runs in a GUI instead of in the ' + 
@@ -27,7 +32,7 @@ def main():
     args = parser.parse_args()
 
     if args.gui:
-        from gui import GUI
+        from gui import GUI # Import here to avoid terminal messages.
         window = GUI()
         window.main_loop()
     else:
@@ -51,7 +56,7 @@ def main():
         # Create subprocesses to execute the n_queens function with arguments
         # n (number of queens) and the shared array for solution storage.
         for i in range(len(processes)):
-            processes[i] = Process(target=n_queens, args=(n, is_solved, solution_array))
+            processes[i] = Process(target=n_queens, args=(n, is_solved, solution_array, args.log))
 
         start = time.time() # Start of execution time.
 

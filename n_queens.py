@@ -3,6 +3,7 @@ import math
 import itertools
 import random
 import multiprocessing
+import time
 
 # Get all printable ascii chars to and map them to a int in order.
 # This is used to map multiple digit ints to a single char for encoding
@@ -117,7 +118,7 @@ def mutate(population, n):
     return children
              
 # Genetic n_queens solver algorithm.
-def n_queens(n, is_solved, solution, original_pop_size=4):
+def n_queens(n, is_solved, solution, log_progress, original_pop_size=4, gui_window=None):
 
     # No solutions exist for 2 or 3 -queens.
     if n == 2 or n == 3:
@@ -143,12 +144,50 @@ def n_queens(n, is_solved, solution, original_pop_size=4):
                     solution[i] = char_encodeing[c] # Set the valid solution.
                 is_solved.value = 1
 
+                if gui_window is not None:
+                    
+                    # Set the queens for the new state.
+                    for e,q in enumerate(p):
+                        gui_window.board[char_encodeing[q]][e].has_queen = True
+
+                     # Display the state.
+                    gui_window.draw()
+
+                    # Animation speed pause the thread.
+                    time.sleep(gui_window.speed)
+
+                return
+
         # Compute the fitnesses for all members of the population.
         population_fitnesses = [(p, fitness(p, n, queen_pairs)) for p in population]
         fitnesses = [f[1] for f in population_fitnesses]
 
-        '''print(f'Highest fitness for {multiprocessing.current_process().name}: ' +
-                f'generation {generation} is {max(fitnesses)}')'''
+        if gui_window is None and log_progress:
+            print(f'Highest fitness for {multiprocessing.current_process().name}: ' +
+                f'generation {generation} is {max(fitnesses)}')
+
+        # Animation controls when program is run with a gui.
+        elif gui_window is not None:
+
+            best_individual = (None,-1)
+
+            # Get the best state to display.
+            for p in population_fitnesses:
+                if p[1] > best_individual[1]:
+                    best_individual = p
+
+            # Clear the old queens from the pervious best state.
+            gui_window.clear_queens()            
+
+            # Set the queens for the new state.
+            for e,p in enumerate(best_individual[0]):
+                gui_window.board[char_encodeing[p]][e].has_queen = True
+
+            # Display the state.
+            gui_window.draw()
+
+            # Animation speed pause the thread.
+            time.sleep(gui_window.speed)
 
         # Compute the normalized probabilities based on the fitnesses of the population.
         population_selection_chances = compute_selection_probabilities(
