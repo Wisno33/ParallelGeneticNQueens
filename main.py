@@ -70,12 +70,14 @@ def main():
 
         end = time.time() # End of execution time.
 
+        # If no solution is found print such.
         if is_solved.value == 0:
             print(f'No solution to {n}-queens exists.')
             return
 
         solution = list()
 
+        # Convert the ctype shared memory array to a python list.
         for i in range(len(solution_array)):
             solution.append(solution_array[i])
 
@@ -85,12 +87,15 @@ def main():
 
         board = list()
 
+        # Create a board matrix.
         for _ in solution:
             board.append(['X'] * n)
 
+        # Create a board text visual with X for empty and Q for queen.
         for i in range(len(solution_array)):
             board[solution_array[i]][i] = 'Q'
 
+        # Print the board.
         for row in board:
             for cell in row:
                 print(cell, end=' ')

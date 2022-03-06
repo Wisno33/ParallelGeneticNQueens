@@ -11,15 +11,12 @@ class GUI:
     # Create and start the GUI.
     def __init__(self):
         pygame.init()
-        self.width, self.height = self.get_window_percentage(.60)
+        self.width, self.height = (720,720)
         self.window = pygame.display.set_mode((self.width, self.height), vsync=True)
         self.data_bar_space = (0,0)
         self.start_menu() # Set the GUI window to the start window.
 
-    def get_window_percentage(self, percentage):
-
-        return (int(1200*percentage), int(1200*percentage))
-
+    # Seters for gui selectors.
     def set_n(self, n, args=None):
         self.n = n[0]
 
@@ -34,6 +31,7 @@ class GUI:
 
         self.window.fill(COLORS['WHITE'])
 
+        # Title
         pygame.display.set_caption('Genetic n-queens')
 
         pygame.display.update()
@@ -59,6 +57,7 @@ class GUI:
         self.menu.add.selector('Population Size:', [('Select a value for the population', 0), ('4', 4), 
                                 ('8', 8), ('16', 16), ('32', 32), ('64', 64)], onchange=self.set_pop_size)
         
+        # Selector for animation speed.
         self.menu.add.selector('Animation Speed:', [('1', 1), ('2', 0.5), 
                                 ('5', 0.2), ('10', 0.1)], onchange=self.set_speed)
                         
@@ -91,12 +90,15 @@ class GUI:
 
         self.information_labels = list()
 
+        # Information text.
         self.information_labels.append(self.menu.add.label('Instructions', max_char=-1, font_size=25))
         self.information_labels.append(self.menu.add.label('1) Select a value for n (1-8 inclusive).',
                                                             max_char=-1, font_size=15))
         self.information_labels.append(self.menu.add.label('2) Select a value for the initial population ' +
                                                             '(4-64 powers of 2 inclusive).', max_char=-1, font_size=15))
-        self.information_labels.append(self.menu.add.label('3) Select a compute to begin the animation.', 
+        self.information_labels.append(self.menu.add.label('3) Select the animation speed for the genetic algorithm.',
+                                                                max_char=-1, font_size=15))
+        self.information_labels.append(self.menu.add.label('4) Select compute to begin the animation.', 
                                                             max_char=-1, font_size=15))
      
         # Re-add the quit button at the end of the information.
@@ -108,17 +110,21 @@ class GUI:
         for label in self.information_labels:
             self.menu.remove_widget(label)
 
+    # Create the underlying board data structure.
     def make_board(self):
 
+        # Get the size of a cell.
         size = (self.width - self.data_bar_space[0]) // self.num_chess_cells_1D
 
         board = list()
 
+        # Create the board matrix.
         for l in range(self.num_chess_cells_1D):
             board.append([None] * self.num_chess_cells_1D)
 
         cell_color = COLORS['WHITE']
 
+        # Color the cells in white and grey in a checkered pattern.
         for i in range(self.num_chess_cells_1D):
             for j in range(self.num_chess_cells_1D):
                 cell = BoardCell(i, j, size, cell_color, self.num_chess_cells_1D)
@@ -129,6 +135,7 @@ class GUI:
 
         self.board = board
 
+    # Draw the board to the screen.
     def draw_board(self):
 
         size = (self.width - self.data_bar_space[0]) // self.num_chess_cells_1D
@@ -137,33 +144,24 @@ class GUI:
             for cell in row:
                 cell.draw(self.window)
                 if cell.has_queen:
-                    self.window.blit(self.queen_image, (cell.x,cell.y))
+                    self.window.blit(self.queen_image, (cell.x,cell.y)) # Draw a queen to the screen.
 
+    # Calculate the size of the queen png.
     def set_queen_size(self, size):
 
+        # Get the queen image and resize it to the cell size.
         queen_image = Image.open('queen.png')
         queen_image = queen_image.resize((int(size),int(size)))
-        queen_image.save('queen_out.png')
+        queen_image.save('cell_size_queen.png')
         # Image of a queen chess piece.
-        self.queen_image = queen_image = pygame.image.load('queen_out.png')
+        self.queen_image = queen_image = pygame.image.load('cell_size_queen.png')
 
+    # Reset the cells that have queens.
     def clear_queens(self):
 
         for row in self.board:
             for cell in row:
                 cell.has_queen = False
-            
-    def draw_board_border(self):
-
-        size = (self.width - self.data_bar_space[0]) // self.num_chess_cells_1D
-        
-        lowest_y = self.board[-1][-1].y + size
-
-        print(lowest_y)
-    
-        pygame.draw.line(self.window, COLORS['BLACK'], (self.height, 0), (self.height, ((self.n * size) - self.data_bar_space[0])))
-
-        print( (0, self.height), (((self.n * size) - self.data_bar_space[0]), self.height))
     
     # Draw the items on the board, queens chess board and data.
     def draw(self):
@@ -175,8 +173,10 @@ class GUI:
 
         pygame.display.update()
 
+    # Execute the genetic n-queens algorithm
     def run_n_queens(self):
         
+        # User entered data.
         self.n = self.n[1]
         self.num_chess_cells_1D = self.n
         self.pop_size = self.pop_size[1]
@@ -187,33 +187,37 @@ class GUI:
         # Destroy the start menu for now.
         self.menu.disable()
 
-        self.make_board()
-        self.set_queen_size((self.width - self.data_bar_space[0]) // self.num_chess_cells_1D)
+        self.make_board() # Create the board object.
+        self.set_queen_size((self.width - self.data_bar_space[0]) // self.num_chess_cells_1D) # Set the queen size.
 
-        self.draw()
+        self.draw() # Draw initial board.
 
-        solution = [0] * self.n
-        is_solved = lambda: None; is_solved.value = 0
+        solution = [0] * self.n # Create a solution array to pass to n_queens.
+        is_solved = lambda: None; is_solved.value = 0 # Create an anonymous object to pass to n_queens.
+        # The above object is needed since n_queens expects a shared Value object which has a value attribute.
 
         n_queens(self.n, is_solved, solution, False, original_pop_size=self.pop_size, gui_window=self)
 
-        self.draw()
+        #self.draw()
 
+        # If there is no solution return to the menu with a no solution message.
         if is_solved.value == 0:
             pygame.time.delay(500)
             self.start_menu(True, self.n)
 
 
+    # Loop over the pygame event queue to keep the gui running.
     def main_loop(self):
 
         run = True
 
+        # Run until exit.
         while run:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    run = False
+                    run = False # Exit
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.start_menu()
+                        self.start_menu() # Return to main menu.
 
-        pygame.quit()
+        pygame.quit() # Exit

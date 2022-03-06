@@ -145,16 +145,16 @@ def n_queens(n, is_solved, solution, log_progress, original_pop_size=4, gui_wind
                 is_solved.value = 1
 
                 if gui_window is not None:
+
+                    # Clear queens so final set can be added.
+                    gui_window.clear_queens()
                     
-                    # Set the queens for the new state.
+                    # Set the queens for the solution state.
                     for e,q in enumerate(p):
-                        gui_window.board[char_encodeing[q]][e].has_queen = True
+                        gui_window.board[e][char_encodeing[q]].has_queen = True
 
                      # Display the state.
                     gui_window.draw()
-
-                    # Animation speed pause the thread.
-                    time.sleep(gui_window.speed)
 
                 return
 
@@ -162,6 +162,7 @@ def n_queens(n, is_solved, solution, log_progress, original_pop_size=4, gui_wind
         population_fitnesses = [(p, fitness(p, n, queen_pairs)) for p in population]
         fitnesses = [f[1] for f in population_fitnesses]
 
+        # If --log was selected, print the highest fitness for the generation.
         if gui_window is None and log_progress:
             print(f'Highest fitness for {multiprocessing.current_process().name}: ' +
                 f'generation {generation} is {max(fitnesses)}')
@@ -181,7 +182,7 @@ def n_queens(n, is_solved, solution, log_progress, original_pop_size=4, gui_wind
 
             # Set the queens for the new state.
             for e,p in enumerate(best_individual[0]):
-                gui_window.board[char_encodeing[p]][e].has_queen = True
+                gui_window.board[e][char_encodeing[p]].has_queen = True
 
             # Display the state.
             gui_window.draw()
@@ -211,6 +212,7 @@ def n_queens(n, is_solved, solution, log_progress, original_pop_size=4, gui_wind
 
         # Mutate by possibly changing 1 char of the state.
 
+        # Set the population to the new states.
         population  = mutate(children, n)
 
         generation += 1
